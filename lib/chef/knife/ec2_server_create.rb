@@ -146,6 +146,12 @@ class Chef
         :description => "The EC2 User Data file to provision the instance with",
         :proc => Proc.new { |m| Chef::Config[:knife][:aws_user_data] = m },
         :default => nil
+        
+      option :ephemeral,
+             :long => "--ephemeral EPHEMERAL_DEVICES",
+             :description => "Comma separated list of device locations (eg - /dev/sdb) to map ephemeral devices",
+             :proc => lambda { |o| o.split(/[\s,]+/) },
+             :default => []
 
       def tcp_test_ssh(hostname)
         tcp_socket = TCPSocket.new(hostname, 22)
@@ -335,8 +341,8 @@ class Chef
                'Ebs.DeleteOnTermination' => delete_term
              }]
         end
-        
-        server_def
+          (config[:ephemeral] || []).each_with_index do |device_name, i|
+            server_def[:block_device_mapping] << {'VirtualName' => "ephemeral#{i}", 'DeviceName' => device_name}
       end
     end
   end
