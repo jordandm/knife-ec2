@@ -343,6 +343,9 @@ class Chef
         end
           (config[:ephemeral] || []).each_with_index do |device_name, i|
             server_def[:block_device_mapping] << {'VirtualName' => "ephemeral#{i}", 'DeviceName' => device_name}
+          end
+          
+          server_def
       end
     end
   end
